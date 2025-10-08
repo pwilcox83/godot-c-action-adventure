@@ -4,67 +4,35 @@ using Godot;
 
 namespace DungeonRPG.Scripts.Characters.Player;
 
-public partial class PlayerMoveState : Node
+public partial class PlayerMoveState : PlayerState
 {
-    private Player _player;
-    private AnimationPlayer _animationPlayer;
-    
-    public override void _Ready()
-    {
-        _player = GetOwner<Player>();
-        _animationPlayer = _player.AnimationPlayer;
-        SetPhysicsProcess(false);
-        SetProcessInput(false);
-    }
-    
+    [Export(PropertyHint.Range, "0,20,0.1")] private float _characterSpeed = 5;
     public override void _PhysicsProcess(double delta)
     {
-        if (_player.Direction == Vector2.Zero)
+        if (Character.Direction == Vector2.Zero)
         {
-            _player.StateMachine.SwitchState<PlayerIdleState>();
+            Character.StateMachine.SwitchState<PlayerIdleState>();
             return;
         }
         
          
-        _player.Velocity = new Vector3(_player.Direction.X, 0, _player.Direction.Y);
-        _player.Velocity *= 5;
+        Character.Velocity = new Vector3(Character.Direction.X, 0, Character.Direction.Y);
+        Character.Velocity *= _characterSpeed;
 
-        _player.MoveAndSlide();
-        _player.Flip();
-    }
-
-    
-    public override void _Notification(int what)
-    {
-        base._Notification(what);
-        
-        var isEnumDefined = Enum.IsDefined(typeof(CustomNotifications), what);
-        if(!isEnumDefined) {return;}
-        
-        var characterState = (CustomNotifications) what;
-        
-        switch (characterState)
-        {
-            case CustomNotifications.PlayerState:
-                _animationPlayer.Play(AnimationConstants.Move);
-                SetPhysicsProcess(true);
-                SetProcessInput(true);
-                break;
-            case CustomNotifications.PlayerPhysicsProcess:
-                SetPhysicsProcess(false);
-                SetProcessInput(false);
-                break;
-            default:
-                return;
-        }
-        
+        Character.MoveAndSlide();
+        Character.Flip();
     }
     
     public override void _Input(InputEvent @event)
     {
         if(Input.IsActionJustPressed(InputConstants.Dash))
         {
-            _player.StateMachine.SwitchState<PlayerDashState>();            
+            Character.StateMachine.SwitchState<PlayerDashState>();            
         }
+    }
+    
+    protected override void EnterState()
+    {
+        AnimationPlayer.Play(AnimationConstants.Move);
     }
 }

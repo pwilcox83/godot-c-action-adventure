@@ -7,12 +7,12 @@ namespace DungeonRPG.Scripts.Characters.Player;
 public partial class Player : CharacterBody3D
 {
     [ExportGroup("Required Nodes")]
-    [Export] public AnimationPlayer AnimationPlayer;
-    [Export] public Sprite3D Sprite3d;
+    [Export] public AnimationPlayer AnimationPlayer { get; private set; }
+    [Export] public Sprite3D Sprite3d { get; private set; }
     
     public Vector2 Direction = Vector2.Zero;
     
-    [Export] public StateMachine StateMachine;
+    [Export] public StateMachine StateMachine { get; private set; }
 
     public override void _Ready()
     {
